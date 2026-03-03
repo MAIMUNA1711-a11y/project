@@ -1,190 +1,534 @@
--- ============================================
--- কৃষি মিত্র - ডেটাবেস স্কিমা
--- ============================================
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Mar 03, 2026 at 07:01 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
-CREATE DATABASE IF NOT EXISTS krishi_mitra CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE krishi_mitra;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- Admin Table
-CREATE TABLE admins (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
--- Farmers (Krishok) Table
-CREATE TABLE farmers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    address TEXT,
-    district VARCHAR(100),
-    upazila VARCHAR(100),
-    nid_number VARCHAR(20),
-    bank_account VARCHAR(50),
-    bkash_number VARCHAR(20),
-    profile_image VARCHAR(255),
-    is_verified TINYINT(1) DEFAULT 0,
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- Buyers Table
-CREATE TABLE buyers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    address TEXT,
-    district VARCHAR(100),
-    upazila VARCHAR(100),
-    profile_image VARCHAR(255),
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--
+-- Database: `krishi_mitra`
+--
 
--- Categories Table
-CREATE TABLE categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name_bn VARCHAR(100) NOT NULL,
-    name_en VARCHAR(100),
-    icon VARCHAR(10),
-    description TEXT,
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- --------------------------------------------------------
 
--- Products Table
-CREATE TABLE products (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    farmer_id INT NOT NULL,
-    category_id INT NOT NULL,
-    name_bn VARCHAR(200) NOT NULL,
-    name_en VARCHAR(200),
-    description TEXT,
-    our_price DECIMAL(10,2) NOT NULL,
-    market_price DECIMAL(10,2) NOT NULL,
-    unit VARCHAR(20) DEFAULT 'কেজি',
-    minimum_order DECIMAL(10,2) DEFAULT 1,
-    available_quantity DECIMAL(10,2) NOT NULL,
-    image1 VARCHAR(255),
-    image2 VARCHAR(255),
-    image3 VARCHAR(255),
-    is_organic TINYINT(1) DEFAULT 0,
-    is_seasonal TINYINT(1) DEFAULT 0,
-    season VARCHAR(50),
-    harvest_date DATE,
-    is_approved TINYINT(1) DEFAULT 0,
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (farmer_id) REFERENCES farmers(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
+--
+-- Table structure for table `admins`
+--
 
--- Orders Table
-CREATE TABLE orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_number VARCHAR(20) UNIQUE NOT NULL,
-    buyer_id INT NOT NULL,
-    total_amount DECIMAL(10,2) NOT NULL,
-    delivery_charge DECIMAL(10,2) DEFAULT 80.00,
-    grand_total DECIMAL(10,2) NOT NULL,
-    payment_method ENUM('bkash','nagad','nid','cod','bank') NOT NULL,
-    payment_number VARCHAR(50),
-    payment_transaction_id VARCHAR(100),
-    payment_status ENUM('pending','paid','failed') DEFAULT 'pending',
-    delivery_address TEXT NOT NULL,
-    delivery_district VARCHAR(100),
-    delivery_upazila VARCHAR(100),
-    order_status ENUM('pending','confirmed','processing','shipped','delivered','cancelled') DEFAULT 'pending',
-    notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (buyer_id) REFERENCES buyers(id)
-);
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Order Items Table
-CREATE TABLE order_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    product_id INT NOT NULL,
-    farmer_id INT NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL,
-    total_price DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (farmer_id) REFERENCES farmers(id)
-);
+--
+-- Dumping data for table `admins`
+--
 
--- Reviews Table
-CREATE TABLE reviews (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL,
-    buyer_id INT NOT NULL,
-    order_id INT NOT NULL,
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (buyer_id) REFERENCES buyers(id),
-    FOREIGN KEY (order_id) REFERENCES orders(id)
-);
+INSERT INTO `admins` (`id`, `name`, `email`, `password`, `phone`, `created_at`) VALUES
+(1, 'Admin', 'admin@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01700000000', '2026-03-02 06:39:25');
 
--- Delivery Charges Table
-CREATE TABLE delivery_charges (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    district VARCHAR(100) NOT NULL,
-    charge DECIMAL(10,2) NOT NULL DEFAULT 80.00,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- --------------------------------------------------------
 
--- Settings Table
-CREATE TABLE settings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    setting_key VARCHAR(100) UNIQUE NOT NULL,
-    setting_value TEXT,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+--
+-- Table structure for table `buyers`
+--
 
--- ============================================
--- SEED DATA
--- ============================================
+CREATE TABLE `buyers` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `address` text DEFAULT NULL,
+  `district` varchar(100) DEFAULT NULL,
+  `upazila` varchar(100) DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Default Admin
-INSERT INTO admins (name, email, password, phone) VALUES
-('Admin', 'admin@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01700000000');
--- Password: password
+--
+-- Dumping data for table `buyers`
+--
 
--- Categories
-INSERT INTO categories (name_bn, name_en, icon) VALUES
-('শুকনো ফল', 'Dry Fruits', '🥜'),
-('গ্রামীণ পণ্য', 'Rural Products', '🌾'),
-('মৌসুমী ফল', 'Seasonal Fruits', '🍎'),
-('শস্য ও দানা', 'Cereals & Grains', '🌽'),
-('মশলা', 'Spices', '🌶️'),
-('সবজি', 'Vegetables', '🥦');
+INSERT INTO `buyers` (`id`, `name`, `email`, `password`, `phone`, `address`, `district`, `upazila`, `profile_image`, `is_active`, `created_at`) VALUES
+(1, 'mim', 'mim@gmail.com', '$2y$10$cSG/530dIXUooiphGDXAIeveKMC0Qqy8./zpPJgO0JaMt1trJWkJC', '109876543332', '', 'নারায়ণগঞ্জ', NULL, NULL, 1, '2026-03-02 07:52:54'),
+(2, 'maimunamim', 'maimuna@gmail.com', '$2y$10$FFOQpzet4Ox5cmEThNKDOeo9vvPQdzkd9iYWLrEy4BvOmHi7UdsOO', '01787448896', '', 'বরিশাল', NULL, NULL, 1, '2026-03-02 15:00:40');
 
--- Settings
-INSERT INTO settings (setting_key, setting_value) VALUES
-('site_name', 'কৃষি মিত্র'),
-('default_delivery_charge', '80'),
-('bkash_number', '01XXXXXXXXX'),
-('nagad_number', '01XXXXXXXXX'),
-('bank_name', 'ডাচ বাংলা ব্যাংক'),
-('bank_account', '1234567890'),
-('bank_routing', '090261XXX');
+-- --------------------------------------------------------
 
--- Delivery charges by district
-INSERT INTO delivery_charges (district, charge) VALUES
-('ঢাকা', 60), ('চট্টগ্রাম', 100), ('সিলেট', 120),
-('রাজশাহী', 100), ('খুলনা', 100), ('বরিশাল', 100),
-('ময়মনসিংহ', 80), ('রংপুর', 120), ('কুমিল্লা', 80),
-('নারায়ণগঞ্জ', 70), ('গাজীপুর', 70);
+--
+-- Table structure for table `categories`
+--
+
+CREATE TABLE `categories` (
+  `id` int(11) NOT NULL,
+  `name_bn` varchar(100) NOT NULL,
+  `name_en` varchar(100) DEFAULT NULL,
+  `icon` varchar(10) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id`, `name_bn`, `name_en`, `icon`, `description`, `is_active`, `created_at`) VALUES
+(1, 'শুকনো ফল', 'Dry Fruits', '🥜', NULL, 1, '2026-03-02 06:39:25'),
+(2, 'গ্রামীণ পণ্য', 'Rural Products', '🌾', NULL, 1, '2026-03-02 06:39:25'),
+(3, 'মৌসুমী ফল', 'Seasonal Fruits', '🍎', NULL, 1, '2026-03-02 06:39:25'),
+(4, 'শস্য ও দানা', 'Cereals & Grains', '🌽', NULL, 1, '2026-03-02 06:39:25'),
+(5, 'মশলা', 'Spices', '🌶️', NULL, 1, '2026-03-02 06:39:25'),
+(6, 'সবজি', 'Vegetables', '🥦', NULL, 1, '2026-03-02 06:39:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `delivery_charges`
+--
+
+CREATE TABLE `delivery_charges` (
+  `id` int(11) NOT NULL,
+  `district` varchar(100) NOT NULL,
+  `charge` decimal(10,2) NOT NULL DEFAULT 80.00,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `delivery_charges`
+--
+
+INSERT INTO `delivery_charges` (`id`, `district`, `charge`, `updated_at`) VALUES
+(1, 'ঢাকা', 60.00, '2026-03-02 06:39:25'),
+(2, 'চট্টগ্রাম', 100.00, '2026-03-02 06:39:25'),
+(3, 'সিলেট', 120.00, '2026-03-02 06:39:25'),
+(4, 'রাজশাহী', 100.00, '2026-03-02 06:39:25'),
+(5, 'খুলনা', 100.00, '2026-03-02 06:39:25'),
+(6, 'বরিশাল', 100.00, '2026-03-02 06:39:25'),
+(7, 'ময়মনসিংহ', 80.00, '2026-03-02 06:39:25'),
+(8, 'রংপুর', 120.00, '2026-03-02 06:39:25'),
+(9, 'কুমিল্লা', 80.00, '2026-03-02 06:39:25'),
+(10, 'নারায়ণগঞ্জ', 70.00, '2026-03-02 06:39:25'),
+(11, 'গাজীপুর', 70.00, '2026-03-02 06:39:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `farmers`
+--
+
+CREATE TABLE `farmers` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `address` text DEFAULT NULL,
+  `district` varchar(100) DEFAULT NULL,
+  `upazila` varchar(100) DEFAULT NULL,
+  `nid_number` varchar(20) DEFAULT NULL,
+  `bank_account` varchar(50) DEFAULT NULL,
+  `bkash_number` varchar(20) DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL,
+  `is_verified` tinyint(1) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `farmers`
+--
+
+INSERT INTO `farmers` (`id`, `name`, `email`, `password`, `phone`, `address`, `district`, `upazila`, `nid_number`, `bank_account`, `bkash_number`, `profile_image`, `is_verified`, `is_active`, `created_at`) VALUES
+(1, 'রহিম উদ্দিন', 'rahim@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01711111111', 'গ্রাম: বড়গ্রাম, ইউনিয়ন: সদর', 'রাজশাহী', 'পুঠিয়া', '1234567890', NULL, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(2, 'করিম মিয়া', 'karim@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01722222222', 'গ্রাম: নতুনপাড়া, বাজার রোড', 'চাঁপাইনবাবগঞ্জ', 'শিবগঞ্জ', '9876543210', NULL, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(3, 'সালমা বেগম', 'salma@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01733333333', 'গ্রাম: পূর্বপাড়া, মেইন রোড', 'ময়মনসিংহ', 'ত্রিশাল', '1122334455', NULL, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(4, 'আবুল হোসেন', 'abul@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01744444444', 'গ্রাম: দক্ষিণপাড়া', 'বগুড়া', 'শাজাহানপুর', '5566778899', NULL, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(5, 'নুরুল ইসলাম', 'nurul@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01755555555', 'গ্রাম: উত্তরপাড়া, কৃষি সড়ক', 'দিনাজপুর', 'বিরামপুর', '6677889900', NULL, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(6, 'ফাতেমা খানম', 'fatema@krishimitra.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '01766666666', 'গ্রাম: মধ্যপাড়া, নদীর পাড়', 'কুষ্টিয়া', 'মিরপুর', '7788990011', NULL, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(7, 'puja', 'puja@gmail.com', '$2y$10$J8vtkj6ww.gW.J/5RfaB7uUwd1MInXlSKdw/YpZTppcLwGfuHcQiG', '12345678901', 'asdfghjkl', 'কুমিল্লা', NULL, '12345678900987654', NULL, NULL, NULL, 1, 1, '2026-03-02 08:24:06'),
+(8, 'Sanjida akter', 'sanjida@gmail.com', '$2y$10$c4LGEbxidWaRBU2nvxyStuHIVeyhmndjSSIKgAfUkgq1iPfE/yr8y', '01787448896', 'Barishal', 'বরিশাল', NULL, '876576473', NULL, NULL, NULL, 1, 1, '2026-03-02 15:06:49');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orders`
+--
+
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL,
+  `order_number` varchar(20) NOT NULL,
+  `buyer_id` int(11) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `delivery_charge` decimal(10,2) DEFAULT 80.00,
+  `grand_total` decimal(10,2) NOT NULL,
+  `payment_method` enum('bkash','nagad','nid','cod','bank') NOT NULL,
+  `payment_number` varchar(50) DEFAULT NULL,
+  `payment_transaction_id` varchar(100) DEFAULT NULL,
+  `payment_status` enum('pending','paid','failed') DEFAULT 'pending',
+  `delivery_address` text NOT NULL,
+  `delivery_district` varchar(100) DEFAULT NULL,
+  `delivery_upazila` varchar(100) DEFAULT NULL,
+  `order_status` enum('pending','confirmed','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `order_number`, `buyer_id`, `total_amount`, `delivery_charge`, `grand_total`, `payment_method`, `payment_number`, `payment_transaction_id`, `payment_status`, `delivery_address`, `delivery_district`, `delivery_upazila`, `order_status`, `notes`, `created_at`, `updated_at`) VALUES
+(1, 'KM202603024381', 1, 750.00, 70.00, 820.00, 'bkash', '09897667653', NULL, 'pending', 'varsity', 'নারায়ণগঞ্জ', NULL, 'confirmed', 'vlo', '2026-03-02 07:54:39', '2026-03-02 14:58:51'),
+(2, 'KM202603023841', 2, 440.00, 100.00, 540.00, 'bkash', '09897667653', NULL, 'pending', 'Bagura road', 'বরিশাল', NULL, 'confirmed', 'vlo', '2026-03-02 15:02:57', '2026-03-02 15:04:10');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_items`
+--
+
+CREATE TABLE `order_items` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `farmer_id` int(11) NOT NULL,
+  `quantity` decimal(10,2) NOT NULL,
+  `unit_price` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `order_items`
+--
+
+INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `farmer_id`, `quantity`, `unit_price`, `total_price`, `created_at`) VALUES
+(1, 1, 1, 1, 1.00, 750.00, 750.00, '2026-03-02 07:54:39'),
+(2, 2, 13, 3, 2.00, 220.00, 440.00, '2026-03-02 15:02:57');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products`
+--
+
+CREATE TABLE `products` (
+  `id` int(11) NOT NULL,
+  `farmer_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `name_bn` varchar(200) NOT NULL,
+  `name_en` varchar(200) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `our_price` decimal(10,2) NOT NULL,
+  `market_price` decimal(10,2) NOT NULL,
+  `unit` varchar(20) DEFAULT 'কেজি',
+  `minimum_order` decimal(10,2) DEFAULT 1.00,
+  `available_quantity` decimal(10,2) NOT NULL,
+  `image1` varchar(255) DEFAULT NULL,
+  `image2` varchar(255) DEFAULT NULL,
+  `image3` varchar(255) DEFAULT NULL,
+  `is_organic` tinyint(1) DEFAULT 0,
+  `is_seasonal` tinyint(1) DEFAULT 0,
+  `season` varchar(50) DEFAULT NULL,
+  `harvest_date` date DEFAULT NULL,
+  `is_approved` tinyint(1) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `farmer_id`, `category_id`, `name_bn`, `name_en`, `description`, `our_price`, `market_price`, `unit`, `minimum_order`, `available_quantity`, `image1`, `image2`, `image3`, `is_organic`, `is_seasonal`, `season`, `harvest_date`, `is_approved`, `is_active`, `created_at`) VALUES
+(1, 1, 1, 'খাঁটি কাজুবাদাম', 'Cashew Nuts', 'রাজশাহী থেকে সংগ্রহ করা তাজা ও খাঁটি কাজুবাদাম। কোনো কৃত্রিম রং বা প্রিজার্ভেটিভ ছাড়া। প্রতিদিনের নাস্তায় বা রান্নায় ব্যবহারযোগ্য। ভিটামিন ই ও ম্যাগনেসিয়াম সমৃদ্ধ।', 750.00, 1000.00, 'কেজি', 1.00, 49.00, 'uploads/products/kajuubadam.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(2, 1, 1, 'আখরোট', 'Walnut', 'প্রাকৃতিকভাবে শুকানো আখরোট। ওমেগা-৩ ফ্যাটি অ্যাসিড সমৃদ্ধ, মস্তিষ্কের কার্যক্ষমতা বাড়ায়। হার্টের জন্য উপকারী। রোদে শুকানো, কোনো রাসায়নিক নেই।', 900.00, 1200.00, 'কেজি', 1.00, 30.00, 'uploads/products/akhrot.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(3, 2, 1, 'কিসমিস', 'Raisins', 'চাঁপাইনবাবগঞ্জের আঙুর থেকে তৈরি খাঁটি কিসমিস। মিষ্টি ও সুস্বাদু। আয়রন ও পটাশিয়াম সমৃদ্ধ। পায়েস, সেমাই ও মিষ্টান্নে ব্যবহারের জন্য আদর্শ।', 380.00, 520.00, 'কেজি', 1.00, 80.00, 'uploads\\products\\kishmish.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(4, 2, 1, 'মেজদা খেজুর', 'Medjool Dates', 'রসালো ও মিষ্টি খেজুর। রমজান মাসে ইফতারির জন্য বিশেষভাবে জনপ্রিয়। প্রাকৃতিক শক্তির উৎস। ফাইবার ও পটাশিয়াম সমৃদ্ধ।', 480.00, 650.00, 'কেজি', 1.00, 100.00, 'uploads\\products\\date.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(5, 1, 1, 'পেস্তাবাদাম', 'Pistachio', 'উচ্চমানের পেস্তাবাদাম। প্রোটিন, ভিটামিন বি৬ ও অ্যান্টিঅক্সিডেন্ট সমৃদ্ধ। স্বাস্থ্যকর স্ন্যাকস হিসেবে আদর্শ। ওজন নিয়ন্ত্রণেও সহায়ক।', 1200.00, 1600.00, 'কেজি', 1.00, 20.00, 'uploads\\products\\pestabadam.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(6, 5, 1, 'চিনাবাদাম', 'Peanuts', 'দিনাজপুরের তাজা চিনাবাদাম। প্রোটিন ও হেলদি ফ্যাটে ভরপুর। ভাজা বা কাঁচা খাওয়া যায়। বাদামের তেল তৈরিতেও ব্যবহার হয়।', 120.00, 180.00, 'কেজি', 1.00, 150.00, 'uploads\\products\\badam.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(7, 5, 1, 'কাঠবাদাম', 'Almonds', 'খাঁটি কাঠবাদাম। ক্যালসিয়াম ও ভিটামিন ই এর চমৎকার উৎস। ত্বক ও চুলের জন্য উপকারী। প্রতিদিন সকালে ভিজিয়ে খাওয়া সবচেয়ে উপকারী।', 950.00, 1300.00, 'কেজি', 1.00, 35.00, 'uploads\\products\\almond.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(8, 6, 1, 'শুকনো ডুমুর', 'Dried Figs', 'প্রাকৃতিকভাবে শুকানো ডুমুর। ক্যালসিয়াম, আয়রন ও ফাইবার সমৃদ্ধ। হজমশক্তি বাড়ায়। মিষ্টান্ন ও সালাদে ব্যবহার করা যায়।', 650.00, 900.00, 'কেজি', 1.00, 25.00, 'uploads\\products\\dumur.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(9, 3, 2, 'সুন্দরবনের খাঁটি মধু', 'Sundarbans Pure Honey', 'ময়মনসিংহের সুন্দরবন এলাকা থেকে সংগ্রহ করা খাঁটি মৌচাকের মধু। কোনো ভেজাল নেই। সর্দি-কাশি, রোগ প্রতিরোধ ও ত্বকের যত্নে অতুলনীয়।', 600.00, 850.00, 'কেজি', 1.00, 25.00, 'uploads\\products\\honey.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(10, 3, 2, 'দেশীয় গরুর ঘি', 'Pure Cow Ghee', 'গরুর খাঁটি দুধ থেকে ঐতিহ্যবাহী পদ্ধতিতে তৈরি দেশীয় ঘি। সুগন্ধযুক্ত ও পুষ্টিকর। রান্না ও স্বাস্থ্যের জন্য অতি উত্তম।', 1100.00, 1500.00, 'কেজি', 1.00, 15.00, 'uploads\\products\\ghee.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(11, 4, 2, 'খেজুরের গুড়', 'Date Palm Jaggery', 'বগুড়ার ঐতিহ্যবাহী খেজুরের গুড়। শীতকালে খেজুর গাছ থেকে রস সংগ্রহ করে তৈরি। চিনির স্বাস্থ্যকর বিকল্প। পিঠা ও পায়েসে অনন্য স্বাদ দেয়।', 200.00, 300.00, 'কেজি', 1.00, 60.00, 'uploads\\products\\khejurrosh.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(12, 4, 2, 'কালোজিরা তেল', 'Black Seed Oil', 'ঠান্ডা পদ্ধতিতে ভাঁজা কালোজিরা থেকে তৈরি বিশুদ্ধ তেল। রোগ প্রতিরোধ ক্ষমতা বাড়ায়। হাদিসে উল্লিখিত মৃত্যু ছাড়া সব রোগের ওষুধ।', 500.00, 700.00, 'লিটার', 1.00, 20.00, 'uploads\\products\\kalojira.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(13, 3, 2, 'খাঁটি সরিষার তেল', 'Pure Mustard Oil', 'ময়মনসিংহের দেশীয় সরিষা থেকে ঘানিতে ভাঁজা খাঁটি সরিষার তেল। ঝাঁজালো সুগন্ধ ও অসাধারণ স্বাদ। রান্না ও ম্যাসাজের জন্য উপযুক্ত।', 220.00, 320.00, 'লিটার', 1.00, 48.00, 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(14, 6, 2, 'নারিকেল তেল', 'Coconut Oil', 'কুষ্টিয়ার দেশীয় নারিকেল থেকে তৈরি খাঁটি নারিকেল তেল। রান্না, চুল ও ত্বকের যত্নে বহুমুখী ব্যবহার। কোল্ড প্রেস পদ্ধতিতে তৈরি।', 350.00, 500.00, 'লিটার', 1.00, 30.00, 'uploads\\products\\tel.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(15, 5, 2, 'আখের গুড়', 'Sugarcane Jaggery', 'দিনাজপুরের আখ থেকে তৈরি খাঁটি গুড়। প্রাকৃতিক মিষ্টি হিসেবে চিনির চেয়ে অনেক স্বাস্থ্যকর। আয়রন ও মিনারেল সমৃদ্ধ।', 160.00, 240.00, 'কেজি', 1.00, 100.00, 'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(16, 6, 2, 'হাতে বোনা চাটাই', 'Handwoven Mat', 'কুষ্টিয়ার ঐতিহ্যবাহী হাতে বোনা পাটের চাটাই। টেকসই ও পরিবেশবান্ধব। ঘর সাজানোর জন্য সুন্দর ও ব্যবহারিক।', 350.00, 500.00, 'পিস', 1.00, 20.00, 'uploads\\products\\mat.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(17, 3, 2, 'শীতলপাটি', 'Shital Pati', 'বাংলাদেশের ঐতিহ্যবাহী শীতলপাটি। মুর্তা বেত দিয়ে হাতে তৈরি। গ্রীষ্মকালে ঠান্ডা অনুভূতি দেয়। ইউনেস্কো স্বীকৃত সাংস্কৃতিক ঐতিহ্য।', 1200.00, 1800.00, 'পিস', 1.00, 10.00, 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(18, 2, 3, 'ফজলি আম', 'Fazli Mango', 'চাঁপাইনবাবগঞ্জের বিখ্যাত ফজলি আম। বড় আকারের, রসালো ও মিষ্টি। সরাসরি বাগান থেকে সংগ্রহ। জুলাই-আগস্টে পাওয়া যায়।', 80.00, 120.00, 'কেজি', 1.00, 200.00, 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(19, 2, 3, 'হিমসাগর আম', 'Himsagar Mango', 'রসালো ও সুগন্ধি হিমসাগর আম। মিষ্টি গন্ধ ও অসাধারণ স্বাদের জন্য বিখ্যাত। আমের রাজা হিসেবে পরিচিত। মে-জুনে পাওয়া যায়।', 100.00, 160.00, 'কেজি', 1.00, 150.00, 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(20, 3, 3, 'দেশীয় লিচু', 'Local Lychee', 'ময়মনসিংহের মিষ্টি ও রসালো লিচু। টাটকা ও সুগন্ধি। ভিটামিন সি ও পটাশিয়াম সমৃদ্ধ। মে-জুন মাসে সীমিত সময়ে পাওয়া যায়।', 150.00, 220.00, 'কেজি', 1.00, 80.00, 'uploads\\products\\lichu.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(21, 1, 3, 'পেয়ারা', 'Guava', 'রাজশাহীর মিষ্টি ও মুচমুচে পেয়ারা। ভিটামিন সি তে লেবুর চেয়ে বেশি সমৃদ্ধ। সারা বছর পাওয়া যায়। ডায়াবেটিস রোগীদের জন্য উপকারী।', 60.00, 90.00, 'কেজি', 1.00, 100.00, 'https://images.unsplash.com/photo-1536511132770-e5058c7e8c46?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(22, 4, 3, 'কলা', 'Banana', 'বগুড়ার তাজা সাগর কলা। শক্তির দ্রুত উৎস। পটাশিয়াম ও ভিটামিন বি৬ সমৃদ্ধ। খেলোয়াড় ও শিশুদের জন্য আদর্শ।', 50.00, 80.00, 'ডজন', 1.00, 200.00, 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(23, 5, 3, 'তরমুজ', 'Watermelon', 'দিনাজপুরের মিষ্টি তরমুজ। গরমে তৃষ্ণা মেটায়। ৯২% পানি সমৃদ্ধ। লাইকোপিন ও ভিটামিন এ ও সি এর ভালো উৎস।', 40.00, 60.00, 'কেজি', 1.00, 300.00, 'https://images.unsplash.com/photo-1563114773-84221bd62daa?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(24, 6, 3, 'পেঁপে', 'Papaya', 'কুষ্টিয়ার তাজা পেঁপে। হজমশক্তি বাড়ায়। ভিটামিন এ ও সি সমৃদ্ধ। কাঁচা পেঁপে সবজি হিসেবে ও পাকা পেঁপে ফল হিসেবে খাওয়া যায়।', 45.00, 70.00, 'কেজি', 1.00, 120.00, 'https://images.unsplash.com/photo-1526318472351-c75fcf070305?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(25, 3, 3, 'কাঁঠাল', 'Jackfruit', 'বাংলাদেশের জাতীয় ফল কাঁঠাল। ময়মনসিংহের মিষ্টি কাঁঠাল। কাঁচা কাঁঠাল সবজি হিসেবে ও পাকা কাঁঠাল ফল হিসেবে অতুলনীয়।', 60.00, 90.00, 'কেজি', 1.00, 80.00, 'uploads\\products\\kathal.jpg', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(26, 2, 3, 'আমড়া', 'Amra (Hog Plum)', 'টক-মিষ্টি স্বাদের দেশীয় আমড়া। ভিটামিন সি সমৃদ্ধ। আচার, চাটনি ও সালাদে অপূর্ব স্বাদ দেয়। বর্ষাকালীন মৌসুমী ফল।', 70.00, 100.00, 'কেজি', 1.00, 60.00, 'https://images.unsplash.com/photo-1550828520-4cb496926fc9?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(27, 5, 4, 'মিনিকেট চাল', 'Miniket Rice', 'দিনাজপুরের সেরা মিনিকেট চাল। সরু, সুগন্ধি ও নরম। রান্নার পরে ঝরঝরে হয়। প্রতিদিনের ভাত রান্নার জন্য সর্বোত্তম।', 65.00, 90.00, 'কেজি', 1.00, 500.00, 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(28, 5, 4, 'নাজিরশাইল চাল', 'Najirshail Rice', 'বিখ্যাত নাজিরশাইল চাল। সুগন্ধি ও সুস্বাদু। পোলাও ও বিরিয়ানির জন্য সেরা। বিশেষ অনুষ্ঠানে রান্নার জন্য আদর্শ।', 85.00, 120.00, 'কেজি', 1.00, 300.00, 'https://images.unsplash.com/photo-1536304993881-ff86e0c9e14d?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(29, 4, 4, 'মসুর ডাল', 'Red Lentils', 'দেশীয় মসুর ডাল। প্রোটিন ও আয়রন সমৃদ্ধ। রান্নায় সুস্বাদু ও পুষ্টিকর। প্রতিদিনের খাবারের অপরিহার্য উপাদান।', 120.00, 170.00, 'কেজি', 1.00, 200.00, 'https://images.unsplash.com/photo-1585996160641-0963834e1cd6?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(30, 3, 4, 'গমের আটা', 'Wheat Flour', 'দেশীয় গম থেকে তৈরি খাঁটি আটা। রুটি, পরোটা ও নান রুটির জন্য আদর্শ। কোনো ব্লিচিং বা কেমিক্যাল ছাড়া।', 55.00, 75.00, 'কেজি', 1.00, 300.00, 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(31, 1, 4, 'কালো তিল', 'Black Sesame', 'রাজশাহীর দেশীয় কালো তিল। তেল, মিষ্টি ও তিলের খাজা তৈরিতে ব্যবহৃত। ক্যালসিয়াম ও আয়রনে ভরপুর।', 180.00, 260.00, 'কেজি', 1.00, 50.00, 'https://images.unsplash.com/photo-1612204103590-b8f36c3fc02b?w=500&q=80', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(32, 4, 4, 'ভুট্টা', 'Corn', 'তাজা হলুদ ভুট্টা। পপকর্ন, সেদ্ধ ভুট্টা বা রান্নায় ব্যবহারযোগ্য। ফাইবার ও ভিটামিন বি সমৃদ্ধ। সরাসরি ক্ষেত থেকে সংগ্রহ।', 40.00, 65.00, 'কেজি', 1.00, 150.00, 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(33, 6, 4, 'খেসারি ডাল', 'Khesari Dal', 'দেশীয় খেসারি ডাল। সাশ্রয়ী মূল্যে প্রোটিনের ভালো উৎস। ডাল, ভর্তা ও বড়া তৈরিতে ব্যবহৃত।', 80.00, 120.00, 'কেজি', 1.00, 180.00, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(34, 5, 4, 'চিড়া', 'Flattened Rice', 'দিনাজপুরের খাঁটি চিড়া। সকালের নাস্তায় দুধ বা দই দিয়ে খাওয়ার জন্য আদর্শ। হালকা ও পুষ্টিকর। উপোসের খাবার হিসেবেও জনপ্রিয়।', 70.00, 100.00, 'কেজি', 1.00, 120.00, 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(35, 3, 5, 'শুকনো মরিচ', 'Dried Red Chili', 'ময়মনসিংহের ঝাল শুকনো মরিচ। রান্নায় সুন্দর লাল রং ও ঝাল দেয়। রোদে প্রাকৃতিকভাবে শুকানো। ভর্তা ও মশলায় অপরিহার্য।', 250.00, 380.00, 'কেজি', 1.00, 40.00, 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(36, 4, 5, 'হলুদ গুঁড়া', 'Turmeric Powder', 'দেশীয় হলুদ থেকে তৈরি খাঁটি গুঁড়া। রান্নায় অপরিহার্য। অ্যান্টিইনফ্লেমেটরি ও অ্যান্টিসেপটিক গুণাগুণ। কারকিউমিন সমৃদ্ধ।', 200.00, 300.00, 'কেজি', 1.00, 60.00, 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=500&q=80', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(37, 1, 5, 'ধনিয়া গুঁড়া', 'Coriander Powder', 'খাঁটি ধনিয়া থেকে তৈরি সুগন্ধি গুঁড়া। রান্নায় অনন্য স্বাদ ও সুগন্ধ দেয়। মাংস ও সবজি রান্নায় অপরিহার্য মশলা।', 180.00, 260.00, 'কেজি', 1.00, 45.00, 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(38, 6, 5, 'আদা গুঁড়া', 'Ginger Powder', 'তাজা আদা শুকিয়ে তৈরি গুঁড়া। চা, রান্না ও ওষুধি কাজে ব্যবহার। হজমশক্তি বাড়ায়, সর্দি-কাশিতে উপকারী।', 220.00, 320.00, 'কেজি', 1.00, 35.00, 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(39, 5, 5, 'রসুন গুঁড়া', 'Garlic Powder', 'তাজা রসুন থেকে তৈরি গুঁড়া। রান্নায় সহজে ব্যবহারযোগ্য। অ্যান্টিব্যাকটেরিয়াল গুণাগুণ। হার্ট ও রক্তচাপ নিয়ন্ত্রণে সহায়ক।', 300.00, 420.00, 'কেজি', 1.00, 30.00, 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(40, 2, 5, 'কালোজিরা', 'Black Seed', 'খাঁটি কালোজিরা। রান্নায় বিশেষ স্বাদ দেয়। ইসলামিক চিকিৎসায় গুরুত্বপূর্ণ ভেষজ। রোগ প্রতিরোধ ক্ষমতা বৃদ্ধিতে অতুলনীয়।', 350.00, 500.00, 'কেজি', 1.00, 40.00, 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(41, 4, 6, 'দেশীয় আলু', 'Potato', 'বগুড়ার তাজা আলু। রান্নায় সবচেয়ে বেশি ব্যবহৃত সবজি। ভর্তা, ভাজি, তরকারি সব কিছুতেই দারুণ। সরাসরি কৃষকের জমি থেকে।', 35.00, 55.00, 'কেজি', 1.00, 500.00, 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(42, 3, 6, 'দেশীয় পেঁয়াজ', 'Onion', 'দেশীয় পেঁয়াজ। রান্নায় অপরিহার্য। তাজা ও ঝাঁজালো। বার্গার, সালাদ ও তরকারিতে অপূর্ব স্বাদ দেয়।', 45.00, 70.00, 'কেজি', 1.00, 400.00, 'https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(43, 2, 6, 'দেশীয় রসুন', 'Garlic', 'দেশীয় রসুন। রান্নায় সুগন্ধ ও স্বাদ বাড়ায়। অ্যান্টিবায়োটিক ও অ্যান্টিফাঙ্গাল গুণাগুণ। হৃদরোগ ও উচ্চ রক্তচাপ নিয়ন্ত্রণে সহায়ক।', 200.00, 300.00, 'কেজি', 1.00, 80.00, 'https://images.unsplash.com/photo-1501420193105-2298f9d9a2a5?w=500&q=80', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(44, 6, 6, 'মিষ্টি কুমড়া', 'Sweet Pumpkin', 'কুষ্টিয়ার তাজা মিষ্টি কুমড়া। ভিটামিন এ তে ভরপুর। ভাজি, তরকারি ও হালুয়া তৈরিতে ব্যবহার হয়। শিশুদের পুষ্টিকর খাবার।', 35.00, 55.00, 'কেজি', 1.00, 200.00, 'https://images.unsplash.com/photo-1506073881649-4e23be3e9ed0?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(45, 5, 6, 'লাউ', 'Bottle Gourd', 'দিনাজপুরের তাজা লাউ। কম ক্যালোরি ও বেশি পানি সমৃদ্ধ। ডায়েটের জন্য আদর্শ। ভাজি, ডাল ও তরকারিতে সুস্বাদু।', 30.00, 50.00, 'কেজি', 1.00, 150.00, 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(46, 4, 6, 'করলা', 'Bitter Gourd', 'বগুড়ার তাজা করলা। ডায়াবেটিস নিয়ন্ত্রণে অত্যন্ত কার্যকর। তেতো স্বাদ হলেও ভর্তা ও ভাজিতে অনন্য। ইনসুলিনের প্রাকৃতিক বিকল্প।', 60.00, 90.00, 'কেজি', 1.00, 100.00, 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=500&q=80', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(47, 3, 6, 'ঢেঁড়স', 'Okra / Lady Finger', 'ময়মনসিংহের তাজা ঢেঁড়স। ভাজি ও তরকারিতে অনন্য। ফাইবার সমৃদ্ধ, কোষ্ঠকাঠিন্য দূর করে। রক্তে শর্করা নিয়ন্ত্রণে সহায়ক।', 55.00, 80.00, 'কেজি', 1.00, 80.00, 'https://images.unsplash.com/photo-1615485020509-4f8b5e7e8c0d?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(48, 1, 6, 'বেগুন', 'Eggplant', 'রাজশাহীর বড় বেগুন। ভর্তা, ভাজি ও তরকারিতে অতুলনীয়। অ্যান্টিঅক্সিডেন্ট সমৃদ্ধ। বাংলাদেশের অন্যতম জনপ্রিয় সবজি।', 50.00, 75.00, 'কেজি', 1.00, 120.00, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80', NULL, NULL, 0, 0, NULL, NULL, 1, 1, '2026-03-02 07:16:37'),
+(49, 7, 1, 'বাদাম', NULL, 'mnbvfgsysyddbdbdg', 100.00, 120.00, 'কেজি', 1.00, 1.00, 'uploads/products/69a54a0b54d4b.jpg', NULL, NULL, 1, 0, NULL, NULL, 1, 1, '2026-03-02 08:27:55');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `buyer_id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `rating` int(11) NOT NULL CHECK (`rating` between 1 and 5),
+  `comment` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `settings`
+--
+
+CREATE TABLE `settings` (
+  `id` int(11) NOT NULL,
+  `setting_key` varchar(100) NOT NULL,
+  `setting_value` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `settings`
+--
+
+INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `updated_at`) VALUES
+(1, 'site_name', 'কৃষি মিত্র', '2026-03-02 06:39:25'),
+(2, 'default_delivery_charge', '80', '2026-03-02 06:39:25'),
+(3, 'bkash_number', '01XXXXXXXXX', '2026-03-02 06:39:25'),
+(4, 'nagad_number', '01XXXXXXXXX', '2026-03-02 06:39:25'),
+(5, 'bank_name', 'ডাচ বাংলা ব্যাংক', '2026-03-02 06:39:25'),
+(6, 'bank_account', '1234567890', '2026-03-02 06:39:25'),
+(7, 'bank_routing', '090261XXX', '2026-03-02 06:39:25');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `buyers`
+--
+ALTER TABLE `buyers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `delivery_charges`
+--
+ALTER TABLE `delivery_charges`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `farmers`
+--
+ALTER TABLE `farmers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `order_number` (`order_number`),
+  ADD KEY `buyer_id` (`buyer_id`);
+
+--
+-- Indexes for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `farmer_id` (`farmer_id`);
+
+--
+-- Indexes for table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `farmer_id` (`farmer_id`),
+  ADD KEY `category_id` (`category_id`);
+
+--
+-- Indexes for table `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `buyer_id` (`buyer_id`),
+  ADD KEY `order_id` (`order_id`);
+
+--
+-- Indexes for table `settings`
+--
+ALTER TABLE `settings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `setting_key` (`setting_key`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `buyers`
+--
+ALTER TABLE `buyers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `delivery_charges`
+--
+ALTER TABLE `delivery_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `farmers`
+--
+ALTER TABLE `farmers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `order_items`
+--
+ALTER TABLE `order_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `products`
+--
+ALTER TABLE `products`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
+-- AUTO_INCREMENT for table `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `settings`
+--
+ALTER TABLE `settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`buyer_id`) REFERENCES `buyers` (`id`);
+
+--
+-- Constraints for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  ADD CONSTRAINT `order_items_ibfk_3` FOREIGN KEY (`farmer_id`) REFERENCES `farmers` (`id`);
+
+--
+-- Constraints for table `products`
+--
+ALTER TABLE `products`
+  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`farmer_id`) REFERENCES `farmers` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
+
+--
+-- Constraints for table `reviews`
+--
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`buyer_id`) REFERENCES `buyers` (`id`),
+  ADD CONSTRAINT `reviews_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
